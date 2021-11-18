@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "module": "esnext",
+        "incremental": true,
+        // "noEmit": true,
+        "lib": ["DOM", "DOM.Iterable", "ES2019"],
+        "esModuleInterop": true,
+        "moduleResolution": "node",
+        "target": "esnext",
+        "strict": false,
+        "skipLibCheck": true
+    },
+    "exclude": ["node_modules", "tsconfig.json"],
+    "include": ["**/*.ts"]
+}

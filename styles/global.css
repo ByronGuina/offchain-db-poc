@@ -1,0 +1,15 @@
+@tailwind base;
+
+html,
+body {
+    @apply text-gray-800;
+}
+
+.layout {
+    max-width: 80ch;
+    padding: 3rem 2rem;
+    margin: auto;
+}
+
+@tailwind components;
+@tailwind utilities;
