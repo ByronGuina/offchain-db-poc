@@ -1,31 +1,25 @@
-import { Client, PrivateKey, createAPISig, KeyInfo, UserAuth, ThreadID } from '@textile/hub';
+import { Client, PrivateKey, createAPISig, KeyInfo, UserAuth, ThreadID, Update } from '@textile/hub';
 
 // KeyInfo
-const keyInfo: KeyInfo = {
+export const keyInfo: KeyInfo = {
     key: 'bgn4kleqbru6nfemsjha4hllfg4',
     // token: eyJhbGciOiJFZDI1NTE5IiwidHlwIjoiSldUIn0.eyJpYXQiOjE2MzcxNzY2ODYsImlzcyI6ImJiYWFyZWlnd2pvYXd1ZWc1a3ZobWMzNjI3Z3Zja2htZTd6emZlbnVqYXVqcHRodGd6Y21odHRvYTZ1Iiwic3ViIjoiYmJhYXJlaWczcG5sc2F5dzNyZmd3cmQ1M3NrbTc0NzdrZmtxZmg2b2F4Y21yd2Vmenh6cGJqbHY0bmEifQ.UNSiJDj1dJzoqWVUE8vmuO-wlsup3t0zQlKkV891lB5BUKHHhLiReGromPM6qfos3VtQDxM0as324Zoy9fQzDw
-    secret: 'bzo7c3pnbxqs56xx4zrgnbeucyqdmiiqaamhwemi',
+    // secret: 'bzo7c3pnbxqs56xx4zrgnbeucyqdmiiqaamhwemi',
 };
 
-// UserAuth
 // const auth: UserAuth = {
-//   msg: '<api msg>',
-//   sig: '<api sig>',
-//   token: '<user msg>',
-//   key: '<api key>',
-// }
-const auth: UserAuth = {
-    ...keyInfo,
-    ...(await createAPISig('bzo7c3pnbxqs56xx4zrgnbeucyqdmiiqaamhwemi')),
-};
+//     ...keyInfo,
+//     // ...createAPISig('bzo7c3pnbxqs56xx4zrgnbeucyqdmiiqaamhwemi').then((result) => result),
+// };
 
-type Astronaut = {
+export type Astronaut = {
     name: string;
     missions: number;
     _id: string;
 };
 
-async function setupClient(auth: UserAuth) {
+// Since we are using unsigned keys we don't need to pass a secret and set a signature
+export async function setupClient(auth: KeyInfo) {
     const client = await Client.withKeyInfo(auth);
     const token = await client.getToken(
         PrivateKey.fromString('bbaareieq5pk4mua5mb447k5ft3gy4qsdjzx5y6wwiwik4kp6gdsitrfmzu'),
@@ -65,22 +59,22 @@ async function createTable(client: Client) {
     };
 }
 
-async function createAstronaut(client: Client, astronaut: Astronaut) {
+export async function createAstronaut(client: Client, astronaut: Astronaut) {
     const [newAstronautId] = await client.create(await getThreadId(client, 'nasa'), 'astronauts', [astronaut]);
     return newAstronautId;
 }
 
-async function findAstronaut(client: Client, astronautId: string) {
+export async function findAstronaut(client: Client, astronautId: string) {
     const threadId = await getThreadId(client, 'nasa');
     return await client.findByID<Astronaut>(threadId, 'astronauts', astronautId);
 }
 
-async function deleteAstronaut(client: Client, astronautId: string) {
+export async function deleteAstronaut(client: Client, astronautId: string) {
     const threadId = await getThreadId(client, 'nasa');
     await client.delete(threadId, 'astronauts', [astronautId]);
 }
 
-async function findAllAstronauts(client: Client) {
+export async function findAllAstronauts(client: Client) {
     const threadId = await getThreadId(client, 'nasa');
     return await client.find<Astronaut>(threadId, 'astronauts', {});
 }
@@ -90,15 +84,27 @@ async function listCollections(client: Client) {
     console.log(await client.listCollections(threadId));
 }
 
-async function getThreadId(client: Client, threadName: string | 'nasa') {
+export async function getThreadId(client: Client, threadName: string | 'nasa') {
     const thread = await client.getThread(threadName);
     return ThreadID.fromString(thread.id);
 }
 
-const client = await setupClient(auth);
+export async function startListener(
+    client: Client,
+    threadID: ThreadID,
+    callback: (astronaut: Update<Astronaut>) => void,
+    actionTypes: string[] = ['CREATE', 'UPDATE', 'DELETE'],
+) {
+    const filters = [{ actionTypes }];
+    const closer = client.listen<Astronaut>(threadID, filters, callback);
+    return closer;
+}
+
 // const { threadId } = await createTable(client);
 // const astronautId = await createAstronaut(client, {
 //     name: 'Carl',
 //     missions: 5000,
 //     _id: '',
 // });
+
+// console.log(await findAllAstronauts(client));
