@@ -1,10 +1,39 @@
 import { Client, PrivateKey, createAPISig, KeyInfo, UserAuth, ThreadID, Update } from '@textile/hub';
 
+/**
+ * Centralized Textile Hub Auth
+ *
+ * There's two ways to do auth with the centralized Textile Hub. They generally follow typical web2 authentication schemes with key/secret pairs
+ * being used to request access via a token.
+ * 1. "Dev mode" – This makes it so the Hub only requires your user key and does not require your user group secret when interacting with the hub
+ *                 client and the hub server. You only require your user key in order to "authenticate" and get a token for operations.
+ * 2. "Prod mode" – This requires your user group secret and your user key to be able to authenticate and get a token for operations on the client
+ *                  and server.
+ *
+ * This demo uses "Dev mode" and is not intended to be used in production. Since this is a free account and there's nothing security-related within
+ * this demo app it's not a big deal to just share within the team. We can also make "Organizations" within the Hub and have multiple users with multiple
+ * key/secret pairs that way.
+ *
+ * Docs:
+ * https://docs.textile.io/hub/apis/
+ * https://docs.textile.io/hub/apis/#non-signing-user-group-keys
+ */
+
+/**
+ * Storage in ThreadDB
+ *
+ * The hierarchy of ThreadDB is similar to what you'd expect to find in MongoDB.
+ * * A Thread can contain multiple Databases.
+ * * A Database can contain multiple Collections. (Tables)
+ * * A Collection can contain multiple Instances. (Rows)
+ *
+ * As far as I can tell, Storage in ThreadDB is scoped to a user group, so if you do not have access to the user group's key/secret pair you cannot access
+ * the data in that user groups' Threads.
+ */
+
 // KeyInfo
 export const keyInfo: KeyInfo = {
-    key: 'bgn4kleqbru6nfemsjha4hllfg4',
-    // token: eyJhbGciOiJFZDI1NTE5IiwidHlwIjoiSldUIn0.eyJpYXQiOjE2MzcxNzY2ODYsImlzcyI6ImJiYWFyZWlnd2pvYXd1ZWc1a3ZobWMzNjI3Z3Zja2htZTd6emZlbnVqYXVqcHRodGd6Y21odHRvYTZ1Iiwic3ViIjoiYmJhYXJlaWczcG5sc2F5dzNyZmd3cmQ1M3NrbTc0NzdrZmtxZmg2b2F4Y21yd2Vmenh6cGJqbHY0bmEifQ.UNSiJDj1dJzoqWVUE8vmuO-wlsup3t0zQlKkV891lB5BUKHHhLiReGromPM6qfos3VtQDxM0as324Zoy9fQzDw
-    // secret: 'bzo7c3pnbxqs56xx4zrgnbeucyqdmiiqaamhwemi',
+    key: 'blyf6xqz42ww57wgxxjbrmvq5aa',
 };
 
 // const auth: UserAuth = {
