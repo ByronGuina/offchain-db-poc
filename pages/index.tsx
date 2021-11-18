@@ -17,26 +17,13 @@ export default function Home() {
     const missionsRef = useRef(null);
 
     useEffect(() => {
-        async function getAstronauts() {
+        async function init() {
             const client = await setupClient(keyInfo);
             const fetchedAstronauts = await findAllAstronauts(client);
             setAstronauts(fetchedAstronauts);
         }
 
-        async function listenToAstronauts() {
-            const client = await setupClient(keyInfo);
-            const threadId = await getThreadId(client, 'nasa');
-
-            const listenerCallback = (astronaut: Update<Astronaut>) => {
-                console.log(astronaut.action);
-                setAstronauts((astronauts) => [...astronauts, astronaut.instance]);
-            };
-
-            await startListener(client, threadId, listenerCallback);
-        }
-
-        getAstronauts();
-        listenToAstronauts();
+        init();
     }, []);
 
     async function onCreateNewAstronaut(e: FormEvent) {
@@ -44,11 +31,17 @@ export default function Home() {
 
         const client = await setupClient(keyInfo);
 
-        const instanceId = await createAstronaut(client, {
+        const newAstronaut = {
             name: nameRef.current.value,
             missions: Number(missionsRef.current.value),
+        };
+
+        const instanceId = await createAstronaut(client, {
+            ...newAstronaut,
             _id: '',
         });
+
+        setAstronauts((astronauts) => [...astronauts, { ...newAstronaut, _id: instanceId }]);
 
         nameRef.current.value = '';
         missionsRef.current.value = '';
@@ -56,7 +49,8 @@ export default function Home() {
 
     async function onDeleteAstronaut(id: string) {
         const client = await setupClient(keyInfo);
-        await deleteAstronaut(client, id);
+        const instanceId = await deleteAstronaut(client, id);
+        setAstronauts((astronauts) => astronauts.filter((astronaut) => astronaut._id !== instanceId));
     }
 
     return (

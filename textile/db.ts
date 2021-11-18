@@ -72,6 +72,7 @@ export async function findAstronaut(client: Client, astronautId: string) {
 export async function deleteAstronaut(client: Client, astronautId: string) {
     const threadId = await getThreadId(client, 'nasa');
     await client.delete(threadId, 'astronauts', [astronautId]);
+    return astronautId;
 }
 
 export async function findAllAstronauts(client: Client) {
@@ -81,7 +82,7 @@ export async function findAllAstronauts(client: Client) {
 
 async function listCollections(client: Client) {
     const threadId = await getThreadId(client, 'nasa');
-    console.log(await client.listCollections(threadId));
+    return await client.listCollections(threadId);
 }
 
 export async function getThreadId(client: Client, threadName: string | 'nasa') {
@@ -93,11 +94,9 @@ export async function startListener(
     client: Client,
     threadID: ThreadID,
     callback: (astronaut: Update<Astronaut>) => void,
-    actionTypes: string[] = ['CREATE', 'UPDATE', 'DELETE'],
 ) {
-    const filters = [{ actionTypes }];
-    const closer = client.listen<Astronaut>(threadID, filters, callback);
-    return closer;
+    const filters = [{ actionTypes: ['CREATE', 'DELETE'] }];
+    return client.listen<Astronaut>(threadID, filters, callback);
 }
 
 // const { threadId } = await createTable(client);
