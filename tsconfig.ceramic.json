@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "module": "esnext",
+        "module": "ESNext",
         "incremental": true,
         // "noEmit": true,
         "lib": ["DOM", "DOM.Iterable", "ES2019"],
@@ -17,5 +17,5 @@
         "strictNullChecks": true
     },
     "exclude": ["node_modules", "tsconfig.json"],
-    "include": ["**/*.ts", "**/*.tsx"]
+    "include": ["ceramic/**/*.ts"]
 }

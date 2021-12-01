@@ -1,13 +1,10 @@
-import { CeramicClient } from '@ceramicnetwork/http-client';
-import { ModelManager } from '@glazed/devtools';
 import { DID } from 'dids';
 import { Ed25519Provider } from 'key-did-provider-ed25519';
 import { getResolver } from 'key-did-resolver';
 import { fromString } from 'uint8arrays';
-import { writeFile } from 'node:fs/promises';
-import modelJson from './model.json';
-
-// console.log(astronautSchema);
+import publishedModel from './published-model.json';
+import { CERAMIC_URLS, Core } from '@self.id/core';
+import { SelfID, WebClient } from '@self.id/web';
 
 // TODO:
 // Astronaut definition
@@ -18,47 +15,83 @@ import modelJson from './model.json';
 //   date: Date
 //   ship: Ship
 
-// The seed must be provided as an environment variable
-async function setupClient(key: string) {
-    // if (!seed) {
-    //     throw new Error('Missing SEED environment variable');
-    // }
-
+async function getDid(key: string) {
     const seed = fromString(key);
-
     // Create and authenticate the DID
     const did = new DID({
         provider: new Ed25519Provider(seed),
         resolver: getResolver(),
     });
 
-    // WHY DO WE NEED TO AUTHENTICATE IT?
     await did.authenticate();
-
-    const ceramic = new CeramicClient('http://localhost:7007');
-    ceramic.did = did;
-    return ceramic;
+    return did;
 }
 
-// Connect to the local Ceramic node// Connect to the local Ceramic node
-export const ceramic = await setupClient('12345678123456781234567812345678');
+async function setupWebClient(key: string) {
+    // TRYING TO USE WEBCLIENT
+    const webClient = new WebClient<typeof publishedModel>({
+        ceramic: CERAMIC_URLS.local,
+        // model: publishedModel,
+    });
+    webClient.ceramic.did = await getDid(key);
+    const self = new SelfID({ client: webClient });
+    const gotIt = await self.get('Astronaut');
+    console.log(gotIt);
 
-const ASTRONAUT_SCHEMA = 'kjzl6cwe1jw14b5bpq9xse3hl8ci4iesch2uxt9ctc2dp1tept6zjebnheitm3l';
-const ASTRONAUTS_SCHEMA = 'kjzl6cwe1jw14augpnsc8fddrf1oxosl6irdn5load7bao3bpkaakn3w96icdml';
+    return webClient;
+}
 
-// Create a manager for the model
-// TODO: Wtf is a model manager?
-const manager = ModelManager.fromJSON(ceramic, modelJson);
+async function setupCore(key: string) {
+    const coreClient = new Core<typeof publishedModel>({
+        ceramic: CERAMIC_URLS.local,
+        model: publishedModel,
+    });
 
-// kjzl6cwe1jw14beulppy23m6k2q3ge2zlchudk4xpzils55ydhji7jw8r1jet7y
+    coreClient.ceramic.did = await getDid(key);
 
-// const newAstronautId = await manager.createTile(
-//     'Astronaut',
-//     { name: 'John', missions: 1 },
-//     {
-//         schema: manager.getSchemaURL('kjzl6cwe1jw14b5bpq9xse3hl8ci4iesch2uxt9ctc2dp1tept6zjebnheitm3l') || '',
-//     },
-// );
+    // const astronaut = await coreClient.ceramic.loadStream('Astronaut');
+
+    // const streamId = await coreClient.get(
+    //     'Astronaut',
+    //     'kjzl6cwe1jw148m6t8cvui50xh9mqcrfiur0v9cj8irmf25q468d6y2ntwg5wsj',
+    // );
+
+    // const streamId = await coreClient.dataStore.set('Astronaut', {
+    //     name: 'Byron',
+    //     missions: 2,
+    // });]
+
+    /**
+     * QUESTION:
+     * What is the data architecture and relationship between schemas, definitions and tiles?
+     * It seems like I can update any of those with any data I want since they are all just
+     * documents. Is there a certain way I should be creating data? Should I only have records
+     * in Tiles? Should I add records to other stuff? How do I enforce a schema?
+     *
+     * How do I use human-readable names for content when loading _tiles_? It seems like we can do
+     * it for definitions and schemas easily enough.
+     *
+     * What's the difference between tileLoader.load and dataModel.loadTile
+     */
+
+    // Loads the tile. Can use .update and allows aliases
+    // const streamAlias$ = (await coreClient.dataModel.loadTile('astronaut')) || { content: '' };
+
+    // Loads the tile. Can use .update but does not allow alias.
+    // const stream$ = await coreClient.tileLoader.load(publishedModel.tiles.astronaut);
+
+    // await stream$.update({
+    //     ...stream$.content,
+    //     name: 'Byron',
+    //     missions: 18,
+    // });
+
+    // console.log(streamAlias$.content);
+    // console.log(stream$.content);
+    return coreClient;
+}
+
+setupCore('12345678123456781234567812345678');
 
 // There's lots of ways of loading data. Which one _should_ we be using?
 // 1. TileDocument.load – I _think_ this is the only way to _change_ data
@@ -85,10 +118,6 @@ const manager = ModelManager.fromJSON(ceramic, modelJson);
 // console.log(doc.id);
 
 // TODO: Use DataModel runtime to be able to use human readable names for schema and stream references
-
-// Write model to JSON file
-// await writeFile(new URL('model.json', import.meta.url), JSON.stringify(manager.toJSON()));
-// console.log('Encoded model written to scripts/model.json file');
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // The IDX document simply consist of a map from strings to DocIDs. For public data sets the key
