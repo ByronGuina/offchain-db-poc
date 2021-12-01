@@ -1,61 +1,19 @@
-import { useState, useEffect, FormEvent, useRef } from 'react';
-import {
-    setupClient,
-    keyInfo,
-    Astronaut,
-    findAllAstronauts,
-    startListener,
-    getThreadId,
-    createAstronaut,
-    deleteAstronaut,
-} from '../textile/db';
-import { Update } from '@textile/hub';
+import { useEffect, useRef } from 'react';
+import { useDbProvider } from './_app';
 
-export default function Home() {
-    const [astronauts, setAstronauts] = useState<Astronaut[]>([]);
+export default function Ceramic() {
+    const { ceramic } = useDbProvider();
     const nameRef = useRef(null);
     const missionsRef = useRef(null);
 
-    useEffect(() => {
-        async function init() {
-            const client = await setupClient(keyInfo);
-            const fetchedAstronauts = await findAllAstronauts(client);
-            setAstronauts(fetchedAstronauts);
-        }
+    function onCreateNewAstronaut() {}
+    function onDeleteAstronaut(id: string) {}
 
-        init();
-    }, []);
-
-    async function onCreateNewAstronaut(e: FormEvent) {
-        e.preventDefault();
-
-        const client = await setupClient(keyInfo);
-
-        const newAstronaut = {
-            name: nameRef.current.value,
-            missions: Number(missionsRef.current.value),
-        };
-
-        const instanceId = await createAstronaut(client, {
-            ...newAstronaut,
-            _id: '',
-        });
-
-        setAstronauts((astronauts) => [...astronauts, { ...newAstronaut, _id: instanceId }]);
-
-        nameRef.current.value = '';
-        missionsRef.current.value = '';
-    }
-
-    async function onDeleteAstronaut(id: string) {
-        const client = await setupClient(keyInfo);
-        const instanceId = await deleteAstronaut(client, id);
-        setAstronauts((astronauts) => astronauts.filter((astronaut) => astronaut._id !== instanceId));
-    }
+    const astronauts = [];
 
     return (
-        <div className='layout space-y-3'>
-            <h1 className='text-lg'>ThreadDB data store</h1>
+        <div className='layout'>
+            <h1 className='text-lg'>Ceramic data store</h1>
             <div className='space-y-2'>
                 <h2 className='font-bold'>Astronauts</h2>
                 <ul>
