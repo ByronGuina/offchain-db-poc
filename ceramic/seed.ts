@@ -6,7 +6,7 @@ import { getResolver } from 'key-did-resolver';
 import { fromString } from 'uint8arrays';
 import { writeFile } from 'node:fs/promises';
 // import localModel from './local-model.json';
-import publishedModel from './published-model.json';
+// import publishedModel from './published-model.json';
 
 // The seed must be provided as an environment variable
 async function setupClient(key: string) {
@@ -76,7 +76,7 @@ const astronautsSchemaID = await manager.createSchema('Astronauts', {
                         $comment: `cip88:ref:${manager.getSchemaURL(astronautSchemaID)}`,
                         type: 'string',
                         pattern: '^ceramic://.+(\\?version=.+)?',
-                        maxLength: 150,
+                        maxLength: 500,
                         nullable: true,
                     },
                     name: {
@@ -119,6 +119,14 @@ const tileId = await manager.createTile(
     { name: 'Byron', missions: 1 },
     {
         schema: manager.getSchemaURL(astronautSchemaID) || '',
+    },
+);
+
+const astronautsCollectionTileId = await manager.createTile(
+    'astronauts',
+    { astronauts: [{ id: `ceramic://${tileId}`, name: 'Byron' }] },
+    {
+        schema: manager.getSchemaURL(astronautsSchemaID) || '',
     },
 );
 

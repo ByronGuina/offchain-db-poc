@@ -4,7 +4,7 @@ import { getResolver } from 'key-did-resolver';
 import { fromString } from 'uint8arrays';
 import publishedModel from './published-model.json';
 import { CERAMIC_URLS, Core } from '@self.id/core';
-import { SelfID, WebClient } from '@self.id/web';
+// import { SelfID, WebClient } from '@self.id/web';
 
 // TODO:
 // Astronaut definition
@@ -14,6 +14,26 @@ import { SelfID, WebClient } from '@self.id/web';
 //   crew: [Astronaut]
 //   date: Date
 //   ship: Ship
+
+// TODO: Figure out the best way to "search" for elements in an ORM-y way. We won't always
+// have the id and don't want to always store it. Maybe we _do_ have the ID on-chain, actually.
+// TODO: Figure out how to keep the relationships in sync when changes need to cascade.
+
+// TODO:
+// Figure out how to type stream/tile responses
+export type EverestCeramicClient = Core<typeof publishedModel>;
+
+type Astronaut = {
+    name: string;
+    missions: number;
+};
+
+type AstronautsCollection = {
+    astronauts: {
+        id: string;
+        name: string;
+    }[];
+};
 
 async function getDid(key: string) {
     const seed = fromString(key);
@@ -27,39 +47,28 @@ async function getDid(key: string) {
     return did;
 }
 
-async function setupWebClient(key: string) {
-    // TRYING TO USE WEBCLIENT
-    const webClient = new WebClient<typeof publishedModel>({
-        ceramic: CERAMIC_URLS.local,
-        // model: publishedModel,
-    });
-    webClient.ceramic.did = await getDid(key);
-    const self = new SelfID({ client: webClient });
-    const gotIt = await self.get('Astronaut');
-    console.log(gotIt);
+// There's a bug where we can't load one of WebClient's dependencies
+// async function setupWebClient(key: string) {
+//     // TRYING TO USE WEBCLIENT
+//     const webClient = new WebClient<typeof publishedModel>({
+//         ceramic: CERAMIC_URLS.local,
+//         // model: publishedModel,
+//     });
+//     webClient.ceramic.did = await getDid(key);
+//     const self = new SelfID({ client: webClient });
+//     const gotIt = await self.get('Astronaut');
+//     console.log(gotIt);
 
-    return webClient;
-}
+//     return webClient;
+// }
 
-async function setupCore(key: string) {
+export async function setupCore(key: string) {
     const coreClient = new Core<typeof publishedModel>({
         ceramic: CERAMIC_URLS.local,
         model: publishedModel,
     });
 
     coreClient.ceramic.did = await getDid(key);
-
-    // const astronaut = await coreClient.ceramic.loadStream('Astronaut');
-
-    // const streamId = await coreClient.get(
-    //     'Astronaut',
-    //     'kjzl6cwe1jw148m6t8cvui50xh9mqcrfiur0v9cj8irmf25q468d6y2ntwg5wsj',
-    // );
-
-    // const streamId = await coreClient.dataStore.set('Astronaut', {
-    //     name: 'Byron',
-    //     missions: 2,
-    // });]
 
     /**
      * QUESTION:
@@ -71,83 +80,95 @@ async function setupCore(key: string) {
      * How do I use human-readable names for content when loading _tiles_? It seems like we can do
      * it for definitions and schemas easily enough.
      *
-     * What's the difference between tileLoader.load and dataModel.loadTile
+     * What's the difference between tileLoader.load and dataModel.loadTile?
      */
-
-    // Loads the tile. Can use .update and allows aliases
-    // const streamAlias$ = (await coreClient.dataModel.loadTile('astronaut')) || { content: '' };
-
-    // Loads the tile. Can use .update but does not allow alias.
-    // const stream$ = await coreClient.tileLoader.load(publishedModel.tiles.astronaut);
 
     // await stream$.update({
     //     ...stream$.content,
     //     name: 'Byron',
-    //     missions: 18,
+    //     missions: 19,
     // });
 
-    // console.log(streamAlias$.content);
-    // console.log(stream$.content);
+    await updateAstronaut(coreClient, 'kjzl6cwe1jw1488hcmwexr8y090vvx4pzv923zdhl03aqctcziz836hl6afgnjd', {
+        name: 'Alex',
+        missions: 102,
+    });
+
+    const astronaut = await getAstronautStream(
+        coreClient,
+        'kjzl6cwe1jw1488hcmwexr8y090vvx4pzv923zdhl03aqctcziz836hl6afgnjd',
+    );
+
+    console.log(astronaut.content);
+
     return coreClient;
 }
 
 setupCore('12345678123456781234567812345678');
 
-// There's lots of ways of loading data. Which one _should_ we be using?
-// 1. TileDocument.load – I _think_ this is the only way to _change_ data
-// 1b. TileLoader.load (an additional abstraction on top of TileDocument)
-// 2. ceramic.loadStream
-// 3. manager.ceramic.loadStream
-// 4. DataModel.loadTile
-// 5. self.id mechanisms
-//
-// How does a Tile relate to a stream? I _think_ a stream is a Tile that changes over time (a stream of data, duh)
-//
-// There's also multiple ways of referencing your models. Which one should we be using?
-// 1. commitIds (you can store these in a .json file using @glazed/devtools)
-// 2. aliases using DataModel
-// 3. self.id mechanisms
-//
-// Are there multiple ways of creating models/schemas?
-// From what I can tell, self.id only supports certain models out of the box. I'm not sure how to create a new model
-// and have it be usable by @self.id/core.
-// See: https://github.com/ceramicstudio/self.id/blob/main/packages/core/scripts/publish-model.mjs for potential example
-//
-// The crux is: What is a spec and what is an actual implementation meant to be used to write applications?
-// const doc = await TileDocument.load(ceramic, 'kjzl6cwe1jw14b0wokxbcldxnsho53xbeuse8jme3ohlr08pwbj8h0y74d906kp');
-// console.log(doc.id);
+export async function getAstronautsCollectionStream(client: EverestCeramicClient) {
+    const stream$ = await client.dataModel.loadTile('astronauts');
 
-// TODO: Use DataModel runtime to be able to use human readable names for schema and stream references
+    if (!stream$) {
+        throw new Error('No astronauts collection stream found');
+    }
 
-// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// The IDX document simply consist of a map from strings to DocIDs. For public data sets the key
-// in this map is the DocID (without the prepended ceramic://) of the definition document, and
-// the value is the DocID (with ceramic://) of the record document.
-// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    return stream$;
+}
 
-/**
- * As mentioned previously a definition is a document created by a developer to describe a data set. 
- * It has five properties which as described below.
- * 
- * name - The name of the data set
- * description - A short description that describes the data set in a few sentences
- * schema - A DocID of a schema document that has to be set on the record
- * url - An url where more information about this data set can be found (optional)
- * config - An object with configurations needed for this data set (optional)
-   The config object can be used for whatever is prefered by the creator of the data set. For example 
-   it might be useful to store additional schemas for the data set, urls where the data can be found, 
-   DocIDs of service providers that pin the data, etc.
- */
+export async function getAstronautStream(client: EverestCeramicClient, id: string) {
+    // You _have_ to use the alias if using dataModel.loadTile. See the below comment if
+    // you don't have the alias but _do_ have the streamId.
+    const stream$ = await client.tileLoader.load(id);
 
-/**
- * !!!! This kinda works similarly to threaddb where data is scoped to a given identity
- * A record is created for the user when an application requests access to a new data set. Each user gets 
-   their own unique record that contains information about their individual data, which they control, in 
-   the data set. The record may contain the data directly, or contain pointers to data that exists elsewhere.
- *
- * When creating a record the following steps should be taken:
- *
- * Create a new tile document with family set to the DocID of the definition and controller set to the users DID
- * Update the document by setting the schema to the DocID defined in the definition, and the desired content
- * This enables the record to be looked up by only knowing the DocID of the definition and the DID of the user.
- */
+    // alternatively, we can use the below function
+    // const stream$ = await coreClient.tileLoader.load(publishedModel.tiles.astronaut);
+    //
+    // This does not let you use alias autocomplete though. If we have the published model
+    // we can use it to path to the streamId for the tile. Or if you have the streamId stored
+    // elsewhere you can use it here. The response from tileLoader.load is the same as the
+    // response from dataModel.loadTile.
+
+    if (!stream$) {
+        throw new Error('No astronaut stream found');
+    }
+
+    return stream$;
+}
+
+export async function updateAstronaut(client: EverestCeramicClient, astronautId: string, astronaut: Astronaut) {
+    const stream$ = await getAstronautStream(client, astronautId);
+
+    const content = stream$.content as Astronaut;
+
+    // Ceramic does not merge data. If we want to merge we need to do a deep copy.
+    // A "merge" function does exist, but it is shallow. If we don't merge then our
+    // new data will completely overwrite the previous record.
+    return await stream$.update({
+        ...content,
+        ...astronaut,
+    });
+}
+
+export async function deleteAstronaut(client: EverestCeramicClient, astronaut: Astronaut) {
+    const stream$ = await getAstronautStream(client, '');
+}
+
+// Make a new Astronaut tile with the Astronaut schema.
+export async function createAstronaut(client: EverestCeramicClient, astronaut: Astronaut) {
+    const newAstronaut$ = await client.dataModel.createTile('Astronaut', astronaut);
+
+    const collection$ = await getAstronautsCollectionStream(client);
+    const collectionContent = collection$.content as AstronautsCollection;
+
+    // Also update the collection of astronauts. We need a better way of cascading operations like
+    // in a regular RDMS.
+    await collection$.update({
+        astronauts: [
+            ...collectionContent.astronauts,
+            { id: `ceramic://${newAstronaut$.id.toString()}`, name: newAstronaut$.content.name },
+        ],
+    });
+
+    return newAstronaut$;
+}
