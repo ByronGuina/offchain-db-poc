@@ -1,6 +1,5 @@
 {
     "name": "ceramic-poc",
-    "type": "module",
     "private": true,
     "scripts": {
         "dev": "next dev",

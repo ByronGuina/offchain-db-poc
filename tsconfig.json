@@ -1,22 +1,32 @@
 {
-    "compilerOptions": {
-        "module": "esnext",
-        "incremental": true,
-        // "noEmit": true,
-        "lib": ["DOM", "DOM.Iterable", "ES2019"],
-        "esModuleInterop": true,
-        "moduleResolution": "node",
-        "target": "esnext",
-        "strict": false,
-        "skipLibCheck": true,
-        "allowJs": true,
-        "forceConsistentCasingInFileNames": true,
-        "resolveJsonModule": true,
-        "isolatedModules": true,
-        "jsx": "preserve",
-        "strictNullChecks": true
-    },
-    "exclude": ["node_modules", "tsconfig.json"],
-    "include": ["**/*.ts", "**/*.tsx"],
-    "references": [{ "ceramic": "./ceramic" }, { "textile": "./textile" }]
+  "compilerOptions": {
+    "module": "esnext",
+    "incremental": true,
+    // "noEmit": true,
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ES2019"
+    ],
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "target": "esnext",
+    "strict": false,
+    "skipLibCheck": true,
+    "allowJs": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "strictNullChecks": true,
+    "noEmit": true
+  },
+  "exclude": [
+    "node_modules",
+    "tsconfig.json"
+  ],
+  "include": [
+    "**/*.ts",
+    "**/*.tsx"
+  ]
 }

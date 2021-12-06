@@ -105,15 +105,7 @@ const astronautsDef = await manager.createDefinition('Astronauts', {
     schema: manager.getSchemaURL(astronautsSchemaID) || '',
 });
 
-// const astronautSchemaID = await manager.getSchemaID('Astronaut');
-// console.log(astronautSchemaID);
-
-// console.log(astronautDef);
-
-// console.log(astronautsDef);
-
-// Create a Note with text that will be used as placeholder
-// kjzl6cwe1jw14acxz0evmuy6c4e429tppne6sa7j7ehnt29ahmfpfyu5zejqkfq
+// How do I tie a Tile with a Definition?
 const tileId = await manager.createTile(
     'astronaut',
     { name: 'Byron', missions: 1 },
@@ -123,13 +115,15 @@ const tileId = await manager.createTile(
 );
 
 const astronautsCollectionTileId = await manager.createTile(
-    'astronauts',
+'astronauts',
     { astronauts: [{ id: `ceramic://${tileId}`, name: 'Byron' }] },
     {
         schema: manager.getSchemaURL(astronautsSchemaID) || '',
     },
 );
 
-// Write model to JSON file
-await writeFile(new URL('local-model.json', import.meta.url), JSON.stringify(await manager.toJSON()));
-await writeFile(new URL('published-model.json', import.meta.url), JSON.stringify(await manager.toPublished()));
+// The clients in self.id/core expect a certain shape for the model for type inference and using aliases
+// for known "ContentTypes" (definitions, schemas, tiles). toPublished outputs the expected shape. There's
+// also a "developer" debugged output that is more verbose. manager.toJSON outputs this.
+await writeFile(new URL('dev-model.json', import.meta.url), JSON.stringify(await manager.toJSON()));
+await writeFile(new URL('prod-model.json', import.meta.url), JSON.stringify(await manager.toPublished()));

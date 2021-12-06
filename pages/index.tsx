@@ -13,8 +13,8 @@ import { Update } from '@textile/hub';
 
 export default function Home() {
     const [astronauts, setAstronauts] = useState<Astronaut[]>([]);
-    const nameRef = useRef(null);
-    const missionsRef = useRef(null);
+    const nameRef = useRef<HTMLInputElement>(null);
+    const missionsRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         async function init() {
@@ -29,22 +29,24 @@ export default function Home() {
     async function onCreateNewAstronaut(e: FormEvent) {
         e.preventDefault();
 
-        const client = await setupClient(keyInfo);
+        if (nameRef.current && missionsRef.current) {
+            const client = await setupClient(keyInfo);
 
-        const newAstronaut = {
-            name: nameRef.current.value,
-            missions: Number(missionsRef.current.value),
-        };
+            const newAstronaut = {
+                name: nameRef.current.value,
+                missions: Number(missionsRef.current.value),
+            };
 
-        const instanceId = await createAstronaut(client, {
-            ...newAstronaut,
-            _id: '',
-        });
+            const instanceId = await createAstronaut(client, {
+                ...newAstronaut,
+                _id: '',
+            });
 
-        setAstronauts((astronauts) => [...astronauts, { ...newAstronaut, _id: instanceId }]);
+            setAstronauts((astronauts) => [...astronauts, { ...newAstronaut, _id: instanceId }]);
 
-        nameRef.current.value = '';
-        missionsRef.current.value = '';
+            nameRef.current.value = '';
+            missionsRef.current.value = '';
+        }
     }
 
     async function onDeleteAstronaut(id: string) {

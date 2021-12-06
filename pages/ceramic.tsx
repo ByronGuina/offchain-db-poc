@@ -1,15 +1,43 @@
-import { useEffect, useRef } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
+import { Astronaut, createAstronaut, getAstronautsCollectionStream } from '../ceramic/db';
 import { useDbProvider } from './_app';
 
 export default function Ceramic() {
+    const [astronauts, setAstronauts] = useState<Astronaut[]>([]);
     const { ceramic } = useDbProvider();
-    const nameRef = useRef(null);
-    const missionsRef = useRef(null);
+    const nameRef = useRef<HTMLInputElement>(null);
+    const missionsRef = useRef<HTMLInputElement>(null);
 
-    function onCreateNewAstronaut() {}
+    async function onCreateNewAstronaut(e: FormEvent) {
+        e.preventDefault();
+
+        if (ceramic && nameRef.current && missionsRef.current) {
+            const newAstronaut = {
+                id: '',
+                name: nameRef.current.value,
+                missions: Number(missionsRef.current.value),
+            };
+
+            const createdAstronaut = await createAstronaut(ceramic, newAstronaut);
+
+            setAstronauts((astronauts) => [...astronauts, { ...newAstronaut, id: createdAstronaut.id.toString() }]);
+
+            nameRef.current.value = '';
+            missionsRef.current.value = '';
+        }
+    }
     function onDeleteAstronaut(id: string) {}
 
-    const astronauts = [];
+    useEffect(() => {
+        async function init() {
+            if (ceramic) {
+                const fetchedAstronauts = await getAstronautsCollectionStream(ceramic);
+                setAstronauts(fetchedAstronauts.content.astronauts);
+            }
+        }
+
+        init();
+    }, [ceramic]);
 
     return (
         <div className='layout'>
@@ -23,10 +51,13 @@ export default function Ceramic() {
                         astronauts.map((astronaut) => (
                             <li
                                 className='cursor-pointer'
-                                key={astronaut._id}
-                                onClick={() => onDeleteAstronaut(astronaut._id)}
+                                key={astronaut.id}
+                                onClick={() => onDeleteAstronaut(astronaut.id)}
                             >
-                                {astronaut.name}
+                                <p>
+                                    {astronaut.name} | {astronaut.missions}
+                                </p>
+                                {astronaut.id}
                             </li>
                         ))
                     )}

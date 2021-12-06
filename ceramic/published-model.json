@@ -1,1 +1,14 @@
-{"definitions":{"Astronaut":"kjzl6cwe1jw145p348hzbey7525e2fsv2kg6jnd7gu8hpk2tddal45ag6hd4c48","Astronauts":"kjzl6cwe1jw14av5kl5aeumxyccrbkr6qhwntz8sn71m17uz6ey3rp1eol6g39z"},"schemas":{"Astronaut":"ceramic://k3y52l7qbv1fryfvlt0dcak1gtr3enkdppg408r9743zr62csvmdtw2ue93jc07pc","Astronauts":"ceramic://k3y52l7qbv1fry9uct7j8d44u0nwj456bb13d03stlqhs4gxursirk7ffsdxesjk0"},"tiles":{"astronaut":"kjzl6cwe1jw147wgl40porvvy2fjn8ggekptu2mdm0dewgyf5yx8t7x8f88ylou","astronauts":"kjzl6cwe1jw14agch96pzmdb9dcrjqffzdev3n0uw1tcea9jlmzkq2vyc4rf2cz"}}
+{
+    "definitions": {
+        "Astronaut": "kjzl6cwe1jw145p348hzbey7525e2fsv2kg6jnd7gu8hpk2tddal45ag6hd4c48",
+        "Astronauts": "kjzl6cwe1jw14av5kl5aeumxyccrbkr6qhwntz8sn71m17uz6ey3rp1eol6g39z"
+    },
+    "schemas": {
+        "Astronaut": "ceramic://k3y52l7qbv1fryfvlt0dcak1gtr3enkdppg408r9743zr62csvmdtw2ue93jc07pc",
+        "Astronauts": "ceramic://k3y52l7qbv1fry9uct7j8d44u0nwj456bb13d03stlqhs4gxursirk7ffsdxesjk0"
+    },
+    "tiles": {
+        "astronaut": "kjzl6cwe1jw147wgl40porvvy2fjn8ggekptu2mdm0dewgyf5yx8t7x8f88ylou",
+        "astronauts": "kjzl6cwe1jw14agch96pzmdb9dcrjqffzdev3n0uw1tcea9jlmzkq2vyc4rf2cz"
+    }
+}
