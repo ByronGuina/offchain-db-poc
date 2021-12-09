@@ -1,43 +1,32 @@
 import { useState, useEffect, FormEvent, useRef } from 'react';
-import {
-    setupClient,
-    keyInfo,
-    Astronaut,
-    findAllAstronauts,
-    startListener,
-    getThreadId,
-    createAstronaut,
-    deleteAstronaut,
-} from '../textile/db';
-import { Update } from '@textile/hub';
+import { Astronaut, findAllAstronauts, createAstronaut, deleteAstronaut } from '../textile/db';
+import { useDbProvider } from './_app';
 
 export default function Home() {
     const [astronauts, setAstronauts] = useState<Astronaut[]>([]);
+    const { threadDb } = useDbProvider();
     const nameRef = useRef<HTMLInputElement>(null);
     const missionsRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         async function init() {
-            const client = await setupClient(keyInfo);
-            const fetchedAstronauts = await findAllAstronauts(client);
+            const fetchedAstronauts = await findAllAstronauts(threadDb);
             setAstronauts(fetchedAstronauts);
         }
 
         init();
-    }, []);
+    }, [threadDb]);
 
     async function onCreateNewAstronaut(e: FormEvent) {
         e.preventDefault();
 
         if (nameRef.current && missionsRef.current) {
-            const client = await setupClient(keyInfo);
-
             const newAstronaut = {
                 name: nameRef.current.value,
                 missions: Number(missionsRef.current.value),
             };
 
-            const instanceId = await createAstronaut(client, {
+            const instanceId = await createAstronaut(threadDb, {
                 ...newAstronaut,
                 _id: '',
             });
@@ -50,8 +39,7 @@ export default function Home() {
     }
 
     async function onDeleteAstronaut(id: string) {
-        const client = await setupClient(keyInfo);
-        const instanceId = await deleteAstronaut(client, id);
+        const instanceId = await deleteAstronaut(threadDb, id);
         setAstronauts((astronauts) => astronauts.filter((astronaut) => astronaut._id !== instanceId));
     }
 

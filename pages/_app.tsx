@@ -1,9 +1,12 @@
 import React, { useEffect } from 'react';
+import { Client } from '@textile/hub';
 import { EverestCeramicClient, setupCore } from '../ceramic/db';
 import '../styles/global.css';
+import { keyInfo, setupClient } from '../textile/db';
 
 interface DbProvider {
     ceramic: EverestCeramicClient;
+    threadDb: Client;
 }
 
 const dbProvider = React.createContext<DbProvider | undefined>(undefined);
@@ -19,24 +22,25 @@ export const useDbProvider = () => {
 };
 
 function MyApp({ Component, pageProps }) {
-    const [ceramic, setCeramic] = React.useState<EverestCeramicClient>();
+    const [value, setDbProvider] = React.useState<DbProvider>();
 
     useEffect(() => {
-        async function setupCeramicClient() {
+        async function setupDbProvider() {
             const ceramic = await setupCore('12345678123456781234567812345678');
-            setCeramic(ceramic);
+            const threadDb = await setupClient(keyInfo);
+            setDbProvider({ ceramic, threadDb });
         }
 
-        setupCeramicClient();
+        setupDbProvider();
     }, []);
     1;
 
-    if (!ceramic) {
-        return 'Loading ceramic...';
+    if (!value?.ceramic || !value?.threadDb) {
+        return 'Loading databases...';
     }
 
     return (
-        <dbProvider.Provider value={{ ceramic: ceramic }}>
+        <dbProvider.Provider value={value}>
             <Component {...pageProps} />
         </dbProvider.Provider>
     );
