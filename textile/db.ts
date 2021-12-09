@@ -90,7 +90,6 @@ async function createTable(client: Client) {
 
     // Store the buzz object in the new collection as an instance (row)
     const instanceIds = await client.create(threadId, 'astronauts', [buzz, lightyear]);
-    console.log(instanceIds);
 
     return {
         threadId,

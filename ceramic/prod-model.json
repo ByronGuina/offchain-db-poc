@@ -1,0 +1,14 @@
+{
+    "definitions": {
+        "Astronaut": "kjzl6cwe1jw1463x18hnlgyohhh7z0avgs0jenfye30wjine1heif7guwa8ui1n",
+        "Astronauts": "kjzl6cwe1jw14a7shiv3as5lb0jtyqzasad9qlmz2qmgp5piat1rwgshiqgkv65"
+    },
+    "schemas": {
+        "Astronaut": "ceramic://k3y52l7qbv1fry8avaz0jstvse8h2rr774baj3dkqkyljbrzlce3ak310kxjyozy8",
+        "Astronauts": "ceramic://k3y52l7qbv1fry7dsp23mkv8zm24tyyn0diwke64gai2j2uvxrejw09csaa6by800"
+    },
+    "tiles": {
+        "astronaut": "kjzl6cwe1jw14bin1nf4pqjyp3ug07yqu0flqqbhn054uo2si7rm9qxh6x4el44",
+        "astronauts": "kjzl6cwe1jw145j1fzam5vmficwju587flyhwb56c8xh2p222k0c0oedu306xul"
+    }
+}

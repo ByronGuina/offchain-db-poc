@@ -1,34 +1,29 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## Running the decentralized database POC
 
-## Getting Started
+-   npm/yarn/pnpm install
+-   Setup ThreadDB and Ceramic
+-   npm/yarn/pnpm run dev
 
-First, run the development server:
+### ThreadDB
+
+There shouldn't be any setup as the configuration is hardcoded into `textile/db.ts`. It currently uses [Textile's centralized Hub service](https://docs.textile.io/hub/).
+
+### Ceramic
+
+**Run a Ceramic node locally**
+
+[Ceramic CLI docs](https://developers.ceramic.network/build/cli/installation/#1-install-the-cli)
 
 ```bash
-npm run dev
-# or
-yarn dev
+npm install -g @ceramicnetwork/cli
+ceramic daemon
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**Ceramic Networks**
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+Right now th POC is using the local network that you set up when you ran `ceramic daemon`. You can change the network by going into `ceramic/db.ts` and changing the Core client creation to point to another network with CERAMIC_URLS['your network']. You should be able to step into the types to see which networks they support and how to pass the data to the Core client.
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+**Appendix**
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+-   [TileDocument API](https://developers.ceramic.network/streamtypes/tile-document/api/#tiledocument-api)
+-   [Ceramic CLI docs](https://developers.ceramic.network/build/cli/installation/#1-install-the-cli)

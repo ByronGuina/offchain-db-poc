@@ -15,16 +15,18 @@
     "skipLibCheck": true,
     "allowJs": true,
     "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "strictNullChecks": true,
+    "noEmit": true
   },
   "exclude": [
     "node_modules",
     "tsconfig.json"
   ],
   "include": [
-    "**/*.ts"
+    "**/*.ts",
+    "**/*.tsx"
   ]
 }

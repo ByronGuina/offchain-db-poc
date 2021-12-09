@@ -6,15 +6,21 @@
         "build": "next build",
         "start": "next start",
         "lint": "next lint",
-        "textile:run": "cd textile && tsc && node db.js"
+        "textile:setup": "cd textile && tsc && node db.js",
+        "ceramic:seed": "tsc --project tsconfig.ceramic.json && node --experimental-json-modules ./ceramic/seed.js",
+        "ceramic:run": "tsc --project tsconfig.ceramic.json && node --experimental-json-modules ./ceramic/db.js"
     },
     "dependencies": {
+        "@3id/connect": "^0.2.5",
         "@ceramicnetwork/3id-did-resolver": "^1.4.8",
         "@ceramicnetwork/core": "^1.10.0",
         "@ceramicnetwork/http-client": "^1.4.4",
+        "@ceramicnetwork/stream-tile": "^1.5.0",
         "@glazed/datamodel": "^0.2.0",
         "@glazed/devtools": "^0.1.3",
         "@glazed/did-datastore": "^0.2.0",
+        "@self.id/core": "^0.2.0",
+        "@self.id/web": "^0.2.0",
         "@textile/hub": "^6.3.1",
         "blockcodec-to-ipld-format": "^2.0.0",
         "dag-jose": "^1.0.0",
@@ -23,16 +29,17 @@
         "ipfs-core": "^0.12.0",
         "key-did-provider-ed25519": "^1.1.0",
         "key-did-resolver": "^1.4.0",
-        "next": "12.0.3",
-        "react": "17.0.2",
+        "next": "^12.0.3",
+        "react": "^17.0.2",
         "react-dom": "17.0.2",
         "uint8arrays": "^3.0.0"
     },
     "devDependencies": {
+        "@glazed/types": "^0.1.3",
         "@types/react": "^17.0.35",
         "autoprefixer": "^10.4.0",
         "eslint": "7.32.0",
-        "eslint-config-next": "12.0.3",
+        "eslint-config-next": "^12.0.3",
         "postcss": "^8.3.11",
         "tailwindcss": "^2.2.19",
         "typescript": "^4.5.2"

@@ -32,3 +32,9 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+tsconfig.tsbuildinfo
+tsconfig.ceramic.tsbuildinfo
+
+/ceramic/**/*.js
+/textile/**/*.js
