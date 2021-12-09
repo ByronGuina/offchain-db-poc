@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useRef, useState } from 'react';
-import { Astronaut, createAstronaut, getAstronautsCollectionStream } from '../ceramic/db';
+import { Astronaut, createAstronaut, EverestCeramicClient, getAstronautsCollectionStream } from '../ceramic/db';
 import { useDbProvider } from './_app';
 
 export default function Ceramic() {
@@ -11,7 +11,7 @@ export default function Ceramic() {
     async function onCreateNewAstronaut(e: FormEvent) {
         e.preventDefault();
 
-        if (ceramic && nameRef.current && missionsRef.current) {
+        if (nameRef.current && missionsRef.current) {
             const newAstronaut = {
                 id: '',
                 name: nameRef.current.value,
@@ -30,10 +30,8 @@ export default function Ceramic() {
 
     useEffect(() => {
         async function init() {
-            if (ceramic) {
-                const fetchedAstronauts = await getAstronautsCollectionStream(ceramic);
-                setAstronauts(fetchedAstronauts.content.astronauts);
-            }
+            const fetchedAstronauts = await getAstronautsCollectionStream(ceramic);
+            setAstronauts(fetchedAstronauts.content.astronauts);
         }
 
         init();

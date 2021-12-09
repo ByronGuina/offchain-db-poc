@@ -1,20 +1,25 @@
 import React, { useEffect } from 'react';
-import '../styles/global.css';
 import { EverestCeramicClient, setupCore } from '../ceramic/db';
-import { Core } from '@self.id/core';
+import '../styles/global.css';
 
 interface DbProvider {
-    ceramic: EverestCeramicClient | null;
+    ceramic: EverestCeramicClient;
 }
 
-const dbProvider = React.createContext<DbProvider>({
-    ceramic: null,
-});
+const dbProvider = React.createContext<DbProvider | undefined>(undefined);
 
-export const useDbProvider = () => React.useContext(dbProvider);
+export const useDbProvider = () => {
+    const context = React.useContext(dbProvider);
+
+    if (context === undefined) {
+        throw new Error('useDbProvider must be used within a DbProvider');
+    }
+
+    return context;
+};
 
 function MyApp({ Component, pageProps }) {
-    const [ceramic, setCeramic] = React.useState<EverestCeramicClient | null>(null);
+    const [ceramic, setCeramic] = React.useState<EverestCeramicClient>();
 
     useEffect(() => {
         async function setupCeramicClient() {
@@ -24,6 +29,11 @@ function MyApp({ Component, pageProps }) {
 
         setupCeramicClient();
     }, []);
+    1;
+
+    if (!ceramic) {
+        return 'Loading ceramic...';
+    }
 
     return (
         <dbProvider.Provider value={{ ceramic: ceramic }}>
