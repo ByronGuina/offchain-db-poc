@@ -36,7 +36,7 @@ function MyApp({ Component, pageProps }) {
     1;
 
     if (!value?.ceramic || !value?.threadDb) {
-        return 'Loading databases...';
+        return <div className='layout'>Loading databases...</div>;
     }
 
     return (
