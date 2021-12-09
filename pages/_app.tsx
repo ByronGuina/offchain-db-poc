@@ -33,7 +33,6 @@ function MyApp({ Component, pageProps }) {
 
         setupDbProvider();
     }, []);
-    1;
 
     if (!value?.ceramic || !value?.threadDb) {
         return <div className='layout'>Loading databases...</div>;
