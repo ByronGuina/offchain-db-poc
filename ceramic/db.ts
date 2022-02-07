@@ -77,6 +77,7 @@ export async function setupCore(key: string) {
     return coreClient;
 }
 
+// TODO: THIS DOESN'T WORK. We can't query relationships in an array
 export async function getAstronauts(client: EverestCeramicClient) {
     const multiQuery = [
         {
@@ -90,7 +91,6 @@ export async function getAstronauts(client: EverestCeramicClient) {
 }
 
 export async function getAstronautsCollectionStream(client: EverestCeramicClient) {
-    const something = await client.dataStore.getRecord('As');
     const stream$ = await client.dataModel.loadTile<'astronauts', AstronautsCollection>('astronauts');
 
     if (!stream$) {
@@ -165,6 +165,8 @@ export async function createAstronaut(client: EverestCeramicClient, astronaut: A
 
     const collection$ = await getAstronautsCollectionStream(client);
     const collectionContent = collection$.content;
+
+    console.log(collection$.id.toString());
 
     // Also update the collection of astronauts. We need a better way of cascading operations like
     // in a regular RDMS.
